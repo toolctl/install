@@ -1,0 +1,68 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+# Check if toolctl is already installed
+if command -v toolctl >/dev/null 2>&1; then
+  echo 'Error: toolctl is already installed' >&2
+  exit 1
+fi
+
+# Check if curl is installed
+if ! [ -x "$(command -v curl)" ]; then
+  echo 'Error: curl is not installed' >&2
+  exit 1
+fi
+
+# Set the install directory
+install_dir=/usr/local/bin
+
+# Check if the install directory exists
+if ! [ -d ${install_dir} ]; then
+  echo "Error: ${install_dir} does not exist" >&2
+  exit 1
+fi
+
+# Check if the install directory is writable
+if ! [ -w ${install_dir} ]; then
+  echo "Error: ${install_dir} is not writable by the current user." >&2
+  echo 'Please run this script as root or with sudo.' >&2
+  exit 1
+fi
+
+# Get the current OS and architecture
+os=$(uname -s | tr '[:upper:]' '[:lower:]')
+arch=$(uname -m)
+arch=${arch/x86_64/amd64}
+
+# Detect the latest version of toolctl
+latest_version=$(
+  curl -s https://raw.githubusercontent.com/toolctl/api/main/v0/toolctl/${os}-${arch}/meta.yaml |
+    grep 'latest: ' |
+    tr -d '[:space:]' |
+    cut -d ':' -f 2
+)
+
+# Print the installation message
+echo "👷 Installing toolctl v${latest_version} ..."
+
+# Download and extract the latest version of toolctl to a temporary directory
+tmp_dir=$(mktemp -d)
+curl -s -L https://github.com/toolctl/toolctl/releases/download/v${latest_version}/toolctl_${latest_version}_${os}_${arch}.tar.gz |
+ tar -xz -C "$tmp_dir"
+
+# Move the binary to the install directory
+mv "$tmp_dir/toolctl" "${install_dir}/toolctl"
+
+# Clean up
+rm -rf "$tmp_dir"
+
+# Check if the binary was installed successfully
+if [ $(${install_dir}/toolctl version --short) != ${latest_version} ]; then
+  echo 'Error: Failed to install toolctl' >&2
+  exit 1
+fi
+
+# Print a success message
+echo "🎉 Successfully installed at ${install_dir}/toolctl"
+echo "💁 To get started, run: toolctl help"
