@@ -45,13 +45,13 @@ tmp_dir=$(mktemp -d)
 curl -s -L https://github.com/toolctl/toolctl/releases/download/v${latest_version}/toolctl_${latest_version}_${os}_${arch}.tar.gz |
  tar -xz -C "$tmp_dir"
 
-# Move the binary to the install directory
+# Move toolctl to the install directory
 mv "$tmp_dir/toolctl" "${install_dir}/toolctl"
 
 # Clean up
 rm -rf "$tmp_dir"
 
-# Check if the binary was installed successfully
+# Check if toolctl was installed successfully
 if [ $(${install_dir}/toolctl version --short) != ${latest_version} ]; then
   echo 'Error: Failed to install toolctl' >&2
   exit 1
