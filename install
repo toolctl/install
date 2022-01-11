@@ -1,11 +1,13 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
 set -euo pipefail
 
 # Check if toolctl is already installed
 if command -v toolctl >/dev/null 2>&1; then
-  echo 'Error: toolctl is already installed' >&2
-  exit 1
+  echo '🎉 toolctl is already installed' >&2
+  echo '💁 To get started with toolctl, run:'
+  echo '     toolctl help'
+  exit
 fi
 
 # Check if curl is installed
@@ -15,19 +17,11 @@ if ! [ -x "$(command -v curl)" ]; then
 fi
 
 # Set the install directory
-install_dir=/usr/local/bin
+install_dir=~/.local/bin
 
 # Check if the install directory exists
 if ! [ -d ${install_dir} ]; then
-  echo "Error: ${install_dir} does not exist" >&2
-  exit 1
-fi
-
-# Check if the install directory is writable
-if ! [ -w ${install_dir} ]; then
-  echo "Error: ${install_dir} is not writable by the current user." >&2
-  echo 'Please run this script as root or with sudo.' >&2
-  exit 1
+  mkdir -p ${install_dir}
 fi
 
 # Get the current OS and architecture
@@ -62,7 +56,15 @@ if [ $(${install_dir}/toolctl version --short) != ${latest_version} ]; then
   echo 'Error: Failed to install toolctl' >&2
   exit 1
 fi
-
-# Print a success message
 echo "🎉 Successfully installed at ${install_dir}/toolctl"
-echo "💁 To get started, run: toolctl help"
+
+# Check if the install directory is in the PATH
+if ! echo "${PATH}" | grep -q "${install_dir}"; then
+  echo "💁 Please make sure to add ${install_dir} to your PATH"
+  echo '💁 On macOS, you can run:'
+  echo "     echo 'export PATH=${install_dir}:\$PATH' >> ~/.zshrc && . ~/.zshrc"
+fi
+
+# Print the usage message
+echo '💁 To get started with toolctl, run:'
+echo '     toolctl help'
