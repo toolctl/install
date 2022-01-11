@@ -26,8 +26,7 @@ fi
 
 # Get the current OS and architecture
 os=$(uname -s | tr '[:upper:]' '[:lower:]')
-arch=$(uname -m)
-arch=${arch/x86_64/amd64}
+arch=$(uname -m | sed 's/x86_64/amd64/')
 
 # Detect the latest version of toolctl
 latest_version=$(
