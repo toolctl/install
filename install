@@ -4,7 +4,7 @@ set -euo pipefail
 
 # Check if toolctl is already installed
 if command -v toolctl >/dev/null 2>&1; then
-  echo '🎉 toolctl is already installed' >&2
+  echo '🎉 toolctl is already installed'
   echo '💁 To get started with toolctl, run:'
   echo '     toolctl help'
   exit
